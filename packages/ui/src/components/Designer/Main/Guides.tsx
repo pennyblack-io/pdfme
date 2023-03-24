@@ -14,6 +14,7 @@ const _Guides = ({
 }) => (
   <>
     <div
+      className="ruler-guide"
       style={{
         width: RULER_HEIGHT,
         height: RULER_HEIGHT,
@@ -24,6 +25,7 @@ const _Guides = ({
       }}
     ></div>
     <Guides
+      className="ruler-guide-horizontal"
       zoom={ZOOM}
       style={{
         position: 'absolute',
@@ -36,6 +38,7 @@ const _Guides = ({
       ref={horizontalRef}
     />
     <Guides
+      className="ruler-guide-vertical"
       zoom={ZOOM}
       style={{
         position: 'absolute',

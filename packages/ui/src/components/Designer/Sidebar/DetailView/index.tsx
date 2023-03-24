@@ -17,14 +17,22 @@ const DetailView = (
   const i18n = useContext(I18nContext);
 
   return (
-    <div>
-      <div style={{ height: 40, display: 'flex', alignItems: 'center' }}>
-        <span style={{ textAlign: 'center', width: '100%', fontWeight: 'bold' }}>
+    <section className="artwork-edit-field">
+      <div
+        className="artwork-edit-field-header"
+        style={{ height: 40, display: 'flex', alignItems: 'center' }}
+      >
+        <h2
+          className="artwork-edit-field-title"
+          style={{ textAlign: 'center', width: '100%', fontWeight: 'bold' }}
+        >
           {i18n('editField')}
-        </span>
+        </h2>
       </div>
+
       <Divider />
-      <div style={{ fontSize: '0.9rem' }}>
+
+      <div className="artwork-edit-field-container" style={{ fontSize: '0.9rem' }}>
         <TypeAndKeyEditor {...props} />
         <Divider />
         <PositionAndSizeEditor {...props} />
@@ -37,7 +45,7 @@ const DetailView = (
         )}
         <ExampleInputEditor {...props} />
       </div>
-    </div>
+    </section>
   );
 };
 

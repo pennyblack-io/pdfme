@@ -187,14 +187,23 @@ const PositionAndSizeEditor = (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
         {layoutBtns.map((b) => (
-          <button key={b.id} title={b.id} onClick={b.action} style={buttonStyle}>
+          <button
+            key={b.id}
+            className={`artwork-edit-button-${b.id}`}
+            title={b.id}
+            onClick={b.action}
+            style={buttonStyle}
+          >
             <object width={15} height={15}>
               {b.icon}
             </object>
           </button>
         ))}
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div
+        className="artwork-edit-position-buttons"
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+      >
         <div style={inputSetStyle}>
           <label style={{ width: 17 }}>X</label>
           <input
