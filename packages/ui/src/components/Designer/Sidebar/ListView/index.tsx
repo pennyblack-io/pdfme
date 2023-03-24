@@ -31,15 +31,19 @@ const ListView = (
   const [fieldNamesValue, setFieldNamesValue] = useState('');
   const height = size.height - RULER_HEIGHT - RULER_HEIGHT / 2 - 145;
   return (
-    <div>
-      <div style={{ height: 40, display: 'flex', alignItems: 'center' }}>
-        <span style={{ textAlign: 'center', width: '100%', fontWeight: 'bold' }}>
+    <div className="artwork-field-list">
+      <div
+        className="artwork-fields-list-title"
+        style={{ height: 40, display: 'flex', alignItems: 'center' }}
+      >
+        <h2 style={{ textAlign: 'center', width: '100%', fontWeight: 'bold' }}>
           {i18n('fieldsList')}
-        </span>
+        </h2>
       </div>
+
       <Divider />
       {isBulkUpdateFieldNamesMode ? (
-        <div>
+        <section>
           <textarea
             wrap="off"
             value={fieldNamesValue}
@@ -56,7 +60,7 @@ const ListView = (
               fontFamily: 'inherit',
             }}
           ></textarea>
-        </div>
+        </section>
       ) : (
         <SelectableSortableContainer
           height={height}
@@ -68,7 +72,7 @@ const ListView = (
         />
       )}
 
-      <div
+      <section
         style={{
           display: 'flex',
           justifyContent: 'flex-end',
@@ -110,7 +114,7 @@ const ListView = (
             {i18n('bulkUpdateFieldName')}
           </u>
         )}
-      </div>
+      </section>
       <Divider />
     </div>
   );

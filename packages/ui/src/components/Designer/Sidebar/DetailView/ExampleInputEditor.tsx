@@ -63,6 +63,7 @@ const ExampleInputEditor = (
         </div>
       ) : (
         <textarea
+          className="artwork-edit-field-input"
           rows={6}
           onChange={(e) =>
             changeSchemas([{ key: 'data', value: e.target.value, schemaId: activeSchema.id }])
