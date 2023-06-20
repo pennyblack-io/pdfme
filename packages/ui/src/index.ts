@@ -5,6 +5,7 @@ import Viewer from './Viewer';
 import {
   BLANK_PDF,
   DEFAULT_FONT_VALUE,
+  DEFAULT_FEATURES,
   isTextSchema,
   isImageSchema,
   isBarcodeSchema,
@@ -45,6 +46,7 @@ export {
   Form,
   BLANK_PDF,
   DEFAULT_FONT_VALUE,
+  DEFAULT_FEATURES,
   isTextSchema,
   isImageSchema,
   isBarcodeSchema,

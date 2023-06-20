@@ -95,7 +95,9 @@ const Main = (props: Props, ref: Ref<HTMLDivElement>) => {
   } = props;
   const { onEdit, changeSchemas, removeSchemas, onChangeHoveringSchemaId, paperRefs } = props;
 
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement | HTMLSpanElement>(null);
+  const prefixRef = useRef<HTMLSpanElement>(null);
+  const suffixRef = useRef<HTMLSpanElement>(null);
   const verticalGuides = useRef<GuidesInterface[]>([]);
   const horizontalGuides = useRef<GuidesInterface[]>([]);
   const moveable = useRef<any>(null);
@@ -225,6 +227,8 @@ const Main = (props: Props, ref: Ref<HTMLDivElement>) => {
     const ic = inputRef.current;
     if (!ic) return;
     ic.focus();
+    if (ic instanceof HTMLSpanElement) return;
+
     if (ic.type !== 'file') {
       ic.setSelectionRange(ic.value.length, ic.value.length);
     }
@@ -324,11 +328,13 @@ const Main = (props: Props, ref: Ref<HTMLDivElement>) => {
             schema={schema}
             onChangeHoveringSchemaId={onChangeHoveringSchemaId}
             editable={editing && activeElements.map((ae) => ae.id).includes(schema.id)}
-            onChange={async (value) => {
-              changeSchemas([{ key: 'data', value, schemaId: schema.id }]);
+            onChange={async (value, key = 'data') => {
+              changeSchemas([{ key, value, schemaId: schema.id }]);
             }}
             outline={hoveringSchemaId === schema.id ? '1px solid #18a0fb' : '1px dashed #4af'}
             ref={inputRef}
+            prefixRef={prefixRef}
+            suffixRef={suffixRef}
           />
         )}
       />

@@ -2,6 +2,7 @@ import generate from './generate.js';
 import {
   BLANK_PDF,
   DEFAULT_FONT_VALUE,
+  DEFAULT_FEATURES,
   isTextSchema,
   isImageSchema,
   isBarcodeSchema,
@@ -39,6 +40,7 @@ export {
   generate,
   BLANK_PDF,
   DEFAULT_FONT_VALUE,
+  DEFAULT_FEATURES,
   isTextSchema,
   isImageSchema,
   isBarcodeSchema,

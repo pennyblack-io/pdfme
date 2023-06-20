@@ -34,10 +34,14 @@ export const TextSchema = CommonSchema.extend({
   backgroundColor: z.string().optional(),
   characterSpacing: z.number().optional(),
   lineHeight: z.number().optional(),
-  dynamicFontSize: z.object({
-    max: z.number(),
-    min: z.number(),
-  }).optional(),
+  dynamicFontSize: z
+    .object({
+      max: z.number(),
+      min: z.number(),
+    })
+    .optional(),
+  prefix: z.string().optional(),
+  suffix: z.string().optional(),
 });
 
 export const ImageSchema = CommonSchema.extend({ type: z.literal(SchemaType.Enum.image) });
@@ -47,7 +51,9 @@ export const BarcodeSchema = CommonSchema.extend({ type: BarcodeSchemaType });
 export const Schema = z.union([TextSchema, ImageSchema, BarcodeSchema]);
 
 const SchemaForUIAdditionalInfo = z.object({
-  id: z.string(), key: z.string(), data: z.string(),
+  id: z.string(),
+  key: z.string(),
+  data: z.string(),
 });
 
 export const SchemaForUI = z.union([
@@ -80,9 +86,12 @@ export const Inputs = z.array(z.record(z.string())).min(1);
 
 const CommonOptions = z.object({ font: Font.optional() });
 
+const CommonFeatures = z.object({ prefixingEnabled: z.boolean() });
+
 export const CommonProps = z.object({
   template: Template,
   options: CommonOptions.optional(),
+  features: CommonFeatures.optional(),
 });
 
 // -------------------generate-------------------

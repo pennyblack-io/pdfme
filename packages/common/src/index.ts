@@ -10,6 +10,7 @@ import {
   DEFAULT_PT_TO_MM_RATIO,
   BLANK_PDF,
   DEFAULT_FONT_VALUE,
+  DEFAULT_FEATURES,
 } from './constants.js';
 import { schemaTypes, isImageSchema, isBarcodeSchema, isTextSchema } from './type.js';
 import type {
@@ -66,6 +67,7 @@ export {
   DEFAULT_PT_TO_MM_RATIO,
   BLANK_PDF,
   DEFAULT_FONT_VALUE,
+  DEFAULT_FEATURES,
   schemaTypes,
   isTextSchema,
   isImageSchema,

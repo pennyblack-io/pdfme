@@ -3,6 +3,7 @@ import { curriedI18n } from './i18n';
 import { DESTROYED_ERR_MSG, DEFAULT_LANG } from './constants';
 import { debounce, flatten, cloneDeep } from './helper';
 import {
+  DEFAULT_FEATURES,
   Template,
   Size,
   Lang,
@@ -17,6 +18,7 @@ import {
   checkUIOptions,
   checkPreviewProps,
 } from '@pdfme/common';
+import { CommonProps } from '@pdfme/common';
 
 const generateColumnsAndSampledataIfNeeded = (template: Template) => {
   const { schemas, columns, sampledata } = template;
@@ -65,6 +67,10 @@ export abstract class BaseUIClass {
 
   private font: Font = getDefaultFont();
 
+  private features: {
+    prefixingEnabled: boolean;
+  } = DEFAULT_FEATURES;
+
   private readonly setSize = debounce(() => {
     if (!this.domContainer) throw Error(DESTROYED_ERR_MSG);
     this.size = {
@@ -79,7 +85,7 @@ export abstract class BaseUIClass {
   constructor(props: UIProps) {
     checkUIProps(props);
 
-    const { domContainer, template, options } = props;
+    const { domContainer, template, options, features } = props;
     const { lang, font } = options || {};
     this.domContainer = domContainer;
     this.template = generateColumnsAndSampledataIfNeeded(cloneDeep(template));
@@ -95,10 +101,17 @@ export abstract class BaseUIClass {
     if (font) {
       this.font = font;
     }
+    if (features) {
+      this.features = features;
+    }
   }
 
   protected getI18n() {
     return curriedI18n(this.lang);
+  }
+
+  public getFeatures() {
+    return this.features;
   }
 
   protected getFont() {

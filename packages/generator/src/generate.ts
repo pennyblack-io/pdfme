@@ -1,15 +1,11 @@
 import { PDFDocument } from '@pdfme/pdf-lib';
 import * as fontkit from 'fontkit';
-import type {
-  Font,
-  GenerateProps,
-  SchemaInputs,
-  Template,
-} from '@pdfme/common';
+import type { Font, GenerateProps, SchemaInputs, Template } from '@pdfme/common';
 import {
   getDefaultFont,
   getFallbackFontName,
   checkGenerateProps,
+  DEFAULT_FEATURES,
 } from '@pdfme/common';
 import {
   getEmbeddedPagesAndEmbedPdfBoxes,
@@ -43,18 +39,44 @@ const postProcessing = (pdfDoc: PDFDocument) => {
 
 const generate = async (props: GenerateProps) => {
   checkGenerateProps(props);
-  const { inputs, template, options = {} } = props;
+  const { inputs, template, options = {}, features = DEFAULT_FEATURES } = props;
   const { font = getDefaultFont() } = options;
   const { schemas } = template;
-
-
 
   const preRes = await preprocessing({ inputs, template, font });
   const { pdfDoc, pdfFontObj, fallbackFontName, embeddedPages, embedPdfBoxes } = preRes;
 
   const inputImageCache: InputImageCache = {};
+
   for (let i = 0; i < inputs.length; i += 1) {
-    const inputObj = inputs[i];
+    let inputObj;
+
+    if (features.prefixingEnabled) {
+      // Add prefix and suffix to text input before drawing
+      const prefixedInputs: SchemaInputs[] = inputs.map((input: SchemaInputs, index: number) => {
+        const keys = Object.keys(input);
+        const prefixedInput: SchemaInputs = {};
+
+        keys.forEach((key) => {
+          const currentSchema = schemas[index][key];
+
+          if (currentSchema.type === 'text') {
+            const prefixContent = currentSchema.prefix || '';
+            const suffixContent = currentSchema.suffix || '';
+            const inputContent = `${prefixContent}${input[key]}${suffixContent}`;
+
+            prefixedInput[key] = inputContent;
+          }
+        });
+
+        return prefixedInput;
+      });
+
+      inputObj = prefixedInputs[i];
+    } else {
+      inputObj = inputs[i];
+    }
+
     const keys = Object.keys(inputObj);
     for (let j = 0; j < embeddedPages.length; j += 1) {
       const embeddedPage = embeddedPages[j];

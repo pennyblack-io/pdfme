@@ -8,9 +8,11 @@ import BarcodeSchema from './BarcodeSchema';
 export interface SchemaUIProps {
   schema: SchemaForUI;
   editable: boolean;
-  onChange: (value: string) => void;
+  onChange: (value: string, key?: string) => void;
   tabIndex?: number;
   placeholder?: string;
+  prefixRef?: RefObject<HTMLSpanElement>;
+  suffixRef?: RefObject<HTMLSpanElement>;
 }
 
 type Props = SchemaUIProps & {
@@ -44,9 +46,14 @@ const Wrapper = ({
   </div>
 );
 
-const SchemaUI = (props: Props, ref: Ref<HTMLTextAreaElement | HTMLInputElement>) => {
+const SchemaUI = (
+  props: Props,
+  ref: Ref<HTMLTextAreaElement | HTMLInputElement | HTMLSpanElement>
+) => {
   const r = {
-    [props.editable ? 'ref' : '']: ref as RefObject<HTMLTextAreaElement | HTMLInputElement>,
+    [props.editable ? 'ref' : '']: ref as RefObject<
+      HTMLTextAreaElement | HTMLInputElement | HTMLSpanElement
+    >,
   };
   const { schema } = props;
 
@@ -58,4 +65,6 @@ const SchemaUI = (props: Props, ref: Ref<HTMLTextAreaElement | HTMLInputElement>
     </Wrapper>
   );
 };
-export default forwardRef<HTMLTextAreaElement | HTMLInputElement, Props>(SchemaUI);
+export default forwardRef<HTMLTextAreaElement | HTMLInputElement | HTMLSpanElement, Props>(
+  SchemaUI
+);

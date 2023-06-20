@@ -116,11 +116,9 @@ const Sidebar = (props: SidebarProps) => {
             style={{
               display: 'flex',
               justifyContent: 'space-around',
-              position: 'absolute',
               width: '100%',
-              left: 0,
-              bottom: '1rem',
               paddingTop: '1rem',
+              paddingBottom: '0.5rem',
             }}
           >
             <button

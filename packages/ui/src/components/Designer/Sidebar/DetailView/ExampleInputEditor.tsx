@@ -73,7 +73,7 @@ const ExampleInputEditor = (
             border: '1px solid #767676',
             borderRadius: 2,
             color: '#333',
-            background: activeSchema.data ? 'none' : '#ffa19b',
+            background: activeSchema.data ? '#ffffff' : '#ffa19b',
           }}
           value={activeSchema.data}
         />
