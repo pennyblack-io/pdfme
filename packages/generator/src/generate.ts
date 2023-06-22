@@ -66,6 +66,8 @@ const generate = async (props: GenerateProps) => {
             const inputContent = `${prefixContent}${input[key]}${suffixContent}`;
 
             prefixedInput[key] = inputContent;
+          } else {
+            prefixedInput[key] = input[key];
           }
         });
 
