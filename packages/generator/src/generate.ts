@@ -60,7 +60,7 @@ const generate = async (props: GenerateProps) => {
         keys.forEach((key) => {
           const currentSchema = schemas[index][key];
 
-          if (currentSchema.type === 'text') {
+          if (currentSchema && currentSchema.type === 'text') {
             const prefixContent = currentSchema.prefix || '';
             const suffixContent = currentSchema.suffix || '';
             const inputContent = `${prefixContent}${input[key]}${suffixContent}`;
