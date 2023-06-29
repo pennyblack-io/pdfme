@@ -30,6 +30,8 @@ const TextSchemaUI = (
     }
   }, [schema.data, schema.width, schema.fontName, schema.dynamicFontSize, schema.dynamicFontSize?.max, schema.dynamicFontSize?.min, schema.characterSpacing, font]);
 
+  const verticalAlignmentValue = schema.verticalAlignment === 'top' ? 'flex-start' : schema.verticalAlignment === 'bottom' ? 'flex-end' : 'center' ?? 'flex-start';
+
   const style: React.CSSProperties = {
     padding: 0,
     resize: 'none',
@@ -59,7 +61,16 @@ const TextSchemaUI = (
       value={schema.data}
     ></textarea>
   ) : (
-    <div style={style}>
+    <div style={{
+      ...style,
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: verticalAlignmentValue
+    }}>
+      <div style={{
+        height: 'auto',
+        width: schema.width * ZOOM,
+      }}>
       {/*  Set the letterSpacing of the last character to 0. */}
       {schema.data.split('').map((l, i) => (
         <span
@@ -71,6 +82,7 @@ const TextSchemaUI = (
           {l}
         </span>
       ))}
+      </div>
     </div>
   );
 };

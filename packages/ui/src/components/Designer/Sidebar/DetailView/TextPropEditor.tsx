@@ -145,6 +145,7 @@ const TextPropEditor = (
 ) => {
   const { changeSchemas, activeSchema } = props;
   const alignments = ['left', 'center', 'right'];
+  const verticalAlignments = ['top', 'middle', 'bottom'];
   const font = useContext(FontContext);
   const fallbackFontName = getFallbackFontName(font);
 
@@ -172,11 +173,26 @@ const TextPropEditor = (
         />
 
         <SelectSet
-          label={'Alignment'}
+          label={'Horizontal Align'}
           value={activeSchema.alignment ?? 'left'}
           options={alignments}
-          onChange={(e) =>
+          onChange={(e) => {
             changeSchemas([{ key: 'alignment', value: e.target.value, schemaId: activeSchema.id }])
+            console.log(activeSchema);
+          }
+           
+          }
+        />
+
+        <SelectSet
+          label={'Vertical Align'}
+          value={activeSchema.verticalAlignment ?? 'top'}
+          options={verticalAlignments}
+          onChange={(e) => {
+            changeSchemas([{ key: 'verticalAlignment', value: e.target.value, schemaId: activeSchema.id }])
+            console.log(activeSchema);
+          }
+            
           }
         />
       </div>
