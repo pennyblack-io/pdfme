@@ -31,7 +31,10 @@ import {
   DEFAULT_CHARACTER_SPACING,
   DEFAULT_FONT_COLOR,
   calculateDynamicFontSize,
+  heightOfFontAtSize,
 } from '@pdfme/common';
+import { Buffer } from 'buffer';
+import * as fontkit from 'fontkit';
 
 export interface InputImageCache {
   [key: string]: PDFImage | undefined;
@@ -251,7 +254,8 @@ const getSplittedLines = (inputLine: string, isOverEval: IsOverEval): string[] =
   const splittedLine = inputLine.substring(0, splitPos);
   const rest = inputLine.substring(splitPos).trimStart();
 
-  if (rest.length === 0) { // end recursion if there is no rest
+  if (rest.length === 0) {
+    // end recursion if there is no rest
     return [splittedLine];
   }
 
@@ -281,8 +285,12 @@ const drawInputByTextSchema = async (arg: {
 
   drawBackgroundColor({ templateSchema, page, pageHeight });
 
-  const { width, rotate } = getSchemaSizeAndRotate(templateSchema);
-  const { size, color, alignment, lineHeight, characterSpacing } = await getFontProp({ input, font, schema: templateSchema });
+  const { width, height, rotate } = getSchemaSizeAndRotate(templateSchema);
+  const { size, color, alignment, lineHeight, characterSpacing } = await getFontProp({
+    input,
+    font,
+    schema: templateSchema,
+  });
 
   page.pushOperators(setCharacterSpacing(characterSpacing));
 
@@ -294,16 +302,25 @@ const drawInputByTextSchema = async (arg: {
         pdfFontValue.widthOfTextAtSize(testString, size) + (testString.length - 1) * characterSpacing;
       return width <= testStringWidth;
     };
-    const splitedLines = getSplittedLines(inputLine, isOverEval);
-    const drawLine = (splitedLine: string, splitedLineIndex: number) => {
+    const splitLines = getSplittedLines(inputLine, isOverEval);
+
+    const drawLine = (line: string, lineIndex: number) => {
       const textWidth =
-        pdfFontValue.widthOfTextAtSize(splitedLine, size) +
-        (splitedLine.length - 1) * characterSpacing;
-      page.drawText(splitedLine, {
+        pdfFontValue.widthOfTextAtSize(line, size) + (line.length - 1) * characterSpacing;
+
+      const fontkitFont = fontkit.create(
+        Buffer.from(font[templateSchema.fontName as string].data as ArrayBuffer)
+      );
+
+      const textHeight = heightOfFontAtSize(fontkitFont, size);
+
+      page.drawText(line, {
         x: calcX(templateSchema.position.x, alignment, width, textWidth),
         y:
-          calcY(templateSchema.position.y, pageHeight, size) -
-          lineHeight * size * (inputLineIndex + splitedLineIndex + beforeLineOver) -
+          calcY(templateSchema.position.y, pageHeight, height) +
+          height -
+          textHeight -
+          lineHeight * size * (inputLineIndex + lineIndex + beforeLineOver) -
           (lineHeight === 0 ? 0 : ((lineHeight - 1) * size) / 2),
         rotate,
         size,
@@ -313,10 +330,10 @@ const drawInputByTextSchema = async (arg: {
         font: pdfFontValue,
         wordBreaks: [''],
       });
-      if (splitedLines.length === splitedLineIndex + 1) beforeLineOver += splitedLineIndex;
+      if (splitLines.length === lineIndex + 1) beforeLineOver += lineIndex;
     };
 
-    splitedLines.forEach(drawLine);
+    splitLines.forEach(drawLine);
   });
 };
 

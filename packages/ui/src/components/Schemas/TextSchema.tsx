@@ -5,12 +5,14 @@ import {
   DEFAULT_LINE_HEIGHT,
   DEFAULT_CHARACTER_SPACING,
   DEFAULT_FONT_COLOR,
+  DEFAULT_PT_TO_PX_RATIO,
   TextSchema,
   calculateDynamicFontSize,
 } from '@pdfme/common';
 import { SchemaUIProps } from './SchemaUI';
 import { ZOOM } from '../../constants';
 import { FontContext, FeaturesContext } from '../../contexts';
+import * as fontkit from 'fontkit';
 
 type PrefixingProps = {
   prefixRef?: Ref<HTMLSpanElement>;
@@ -27,7 +29,6 @@ const TextSchemaUI = (
 ) => {
   const font = useContext(FontContext);
   const { prefixingEnabled } = useContext(FeaturesContext);
-
   const [dynamicFontSize, setDynamicFontSize] = useState<number | undefined>(undefined);
 
   useEffect(() => {
@@ -76,22 +77,23 @@ const TextSchemaUI = (
   };
 
   const style: React.CSSProperties = {
+    position: 'absolute',
+    top: 0,
     padding: 0,
-    resize: 'none',
-    display: 'inline',
-    fontFamily: schema.fontName ? `'${schema.fontName}'` : 'inherit',
     height: schema.height * ZOOM,
     width: schema.width * ZOOM,
-    textAlign: schema.alignment ?? DEFAULT_ALIGNMENT,
+    resize: 'none',
+    fontFamily: schema.fontName ? `'${schema.fontName}'` : 'inherit',
+    color: schema.fontColor ? schema.fontColor : DEFAULT_FONT_COLOR,
     fontSize: `${dynamicFontSize ?? schema.fontSize ?? DEFAULT_FONT_SIZE}pt`,
     letterSpacing: `${schema.characterSpacing ?? DEFAULT_CHARACTER_SPACING}pt`,
     lineHeight: `${schema.lineHeight ?? DEFAULT_LINE_HEIGHT}em`,
+    textAlign: schema.alignment ?? DEFAULT_ALIGNMENT,
     whiteSpace: 'pre-line',
     wordBreak: 'break-word',
-    border: 'none',
-    color: schema.fontColor ? schema.fontColor : DEFAULT_FONT_COLOR,
     backgroundColor:
       schema.data && schema.backgroundColor ? schema.backgroundColor : 'rgb(242 244 255 / 75%)',
+    border: 'none',
   };
 
   const inputContainerStyle: React.CSSProperties = {
@@ -104,6 +106,7 @@ const TextSchemaUI = (
 
   const inputStyle: React.CSSProperties = {
     ...style,
+    position: 'relative',
     display: 'inline-block',
     width: 'auto',
     height: 'auto',
@@ -127,10 +130,45 @@ const TextSchemaUI = (
     backgroundColor: '#aad8ff',
   };
 
+  const schemaFontSize = dynamicFontSize ?? schema.fontSize ?? DEFAULT_FONT_SIZE;
+  let fontAlignmentValue = 0;
+
+  if (schema.fontName) {
+    const currentFont = fontkit.create(Buffer.from(font[schema.fontName].data as ArrayBuffer));
+
+    // Ascent and descent values obtained from Fontkit in font units
+    const ascentInFontUnits = currentFont.ascent;
+    const descentInFontUnits = currentFont.descent;
+    const fontSizeInPx = schemaFontSize * DEFAULT_PT_TO_PX_RATIO;
+
+    // Get the scaling factor for the font
+    const scalingFactor = currentFont.unitsPerEm;
+
+    // Convert ascent and descent to px values
+    const ascentInPixels = (ascentInFontUnits / scalingFactor) * fontSizeInPx;
+    const descentInPixels = (descentInFontUnits / scalingFactor) * fontSizeInPx;
+
+    // Calculate the single line height in px
+    const singleLineHeight = (ascentInPixels + Math.abs(descentInPixels)) / fontSizeInPx;
+
+    // Calculate the top margin/padding in px
+    fontAlignmentValue = (singleLineHeight * fontSizeInPx - fontSizeInPx) / 2;
+  }
+
   return editable ? (
     <>
       {prefixingEnabled && (
-        <div style={inputContainerStyle}>
+        <div
+          style={{
+            ...inputContainerStyle,
+            height:
+              fontAlignmentValue < 0
+                ? `${schema.height * ZOOM + Math.abs(fontAlignmentValue)}px`
+                : `${schema.height * ZOOM}px`,
+            marginTop: fontAlignmentValue < 0 ? `${fontAlignmentValue}px` : '0',
+            paddingTop: fontAlignmentValue >= 0 ? `${fontAlignmentValue}px` : '0',
+          }}
+        >
           <span
             style={inputPrefixingStyle}
             contentEditable={true}
@@ -168,15 +206,28 @@ const TextSchemaUI = (
           ref={ref}
           placeholder={placeholder}
           tabIndex={tabIndex}
-          style={style}
+          style={{
+            ...style,
+            height:
+              fontAlignmentValue < 0
+                ? `${schema.height * ZOOM + Math.abs(fontAlignmentValue)}px`
+                : `${schema.height * ZOOM}px`,
+            marginTop: fontAlignmentValue < 0 ? `${fontAlignmentValue}px` : '0',
+            paddingTop: fontAlignmentValue >= 0 ? `${fontAlignmentValue}px` : '0',
+          }}
           onChange={(e) => onChange(e.target.value)}
           value={schema.data}
         ></textarea>
       )}
     </>
   ) : (
-    <>
-      <div style={inputContainerStyle}>
+    <div style={inputContainerStyle}>
+      <div
+        style={{
+          marginTop: fontAlignmentValue < 0 ? `${fontAlignmentValue}px` : '0',
+          paddingTop: fontAlignmentValue >= 0 ? `${fontAlignmentValue}px` : '0',
+        }}
+      >
         {prefixingEnabled && schema.prefix && schema.prefix.length > 0 && (
           <div style={inputStyle}>
             {/*  Set the letterSpacing of the last character to 0. */}
@@ -228,7 +279,7 @@ const TextSchemaUI = (
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 };
 

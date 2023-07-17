@@ -22,6 +22,7 @@ const preprocessing = async (arg: { inputs: SchemaInputs[]; template: Template; 
   const fallbackFontName = getFallbackFontName(font);
 
   const pdfDoc = await PDFDocument.create();
+  // @ts-ignore
   pdfDoc.registerFontkit(fontkit);
 
   const pdfFontObj = await embedAndGetFontObj({ pdfDoc, font });
