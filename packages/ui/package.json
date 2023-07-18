@@ -43,6 +43,7 @@
     "@heroicons/react": "^2.0.13",
     "@pdfme/common": "^1.2.6",
     "@scena/react-guides": "^0.16.0",
+    "buffer": "^6.0.3",
     "hotkeys-js": "^3.8.7",
     "pdfjs-dist": "2.12.313",
     "react": "^17.0.2",

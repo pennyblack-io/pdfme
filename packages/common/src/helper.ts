@@ -11,7 +11,7 @@ import {
   GenerateProps as GeneratePropsSchema,
   UIProps as UIPropsSchema,
 } from './schema.js';
-import { Font as FontkitFont } from 'fontkit';
+import type { Font as FontkitFont } from 'fontkit';
 
 const blob2Base64Pdf = (blob: Blob) => {
   return new Promise<string>((resolve, reject) => {

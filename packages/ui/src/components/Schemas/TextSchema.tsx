@@ -13,6 +13,7 @@ import { SchemaUIProps } from './SchemaUI';
 import { ZOOM } from '../../constants';
 import { FontContext, FeaturesContext } from '../../contexts';
 import * as fontkit from 'fontkit';
+import { Buffer } from 'buffer/';
 
 type PrefixingProps = {
   prefixRef?: Ref<HTMLSpanElement>;
@@ -134,6 +135,7 @@ const TextSchemaUI = (
   let fontAlignmentValue = 0;
 
   if (schema.fontName) {
+    // @ts-ignore
     const currentFont = fontkit.create(Buffer.from(font[schema.fontName].data as ArrayBuffer));
 
     // Ascent and descent values obtained from Fontkit in font units
