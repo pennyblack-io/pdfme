@@ -61,6 +61,9 @@ import {
   checkGenerateProps,
   mm2pt,
   pt2px,
+  buildPlaceholder,
+  migrateTemplate,
+  substitutePlaceholdersInContent,
   validateBarcodeInput,
 } from './helper.js';
 import {
@@ -126,6 +129,9 @@ export {
   calculateDynamicFontSize,
   barCodeType2Bcid,
   mapHexColorForBwipJsLib,
+  buildPlaceholder,
+  migrateTemplate,
+  substitutePlaceholdersInContent,
 };
 
 export type {

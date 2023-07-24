@@ -35,6 +35,7 @@ export const CommonSchema = z.object({
 
 export const TextSchema = CommonSchema.extend({
   type: z.literal(SchemaType.Enum.text),
+  content: z.string().optional(),
   alignment: Alignment.optional(),
   verticalAlignment: VerticalAlignment.optional(),
   fontSize: z.number().optional(),

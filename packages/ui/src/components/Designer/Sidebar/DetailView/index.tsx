@@ -5,6 +5,7 @@ import { I18nContext } from '../../../../contexts';
 import Divider from '../../../Divider';
 import { SidebarProps } from '../index';
 import TextPropEditor from './TextPropEditor';
+import ContentEditor from './ContentEditor';
 import ExampleInputEditor from './ExampleInputEditor';
 import PositionAndSizeEditor from './PositionAndSizeEditor';
 import TypeAndKeyEditor from './TypeAndKeyEditor';
@@ -43,6 +44,8 @@ const DetailView = (
         {isTextSchema(activeSchema) && (
           <>
             <TextPropEditor {...props} />
+            <Divider />
+            <ContentEditor {...props} />
             <Divider />
           </>
         )}

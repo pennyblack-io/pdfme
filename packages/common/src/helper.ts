@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { Buffer } from 'buffer';
-import { BasePdf, CommonProps, BarCodeType, } from './type';
+import { BasePdf, CommonProps, BarCodeType, Template } from './type';
 import {
   Inputs as InputsSchema,
   UIOptions as UIOptionsSchema,
@@ -12,6 +12,7 @@ import {
 } from './schema';
 import { MM_TO_PT_RATIO, PT_TO_MM_RATIO, PT_TO_PX_RATIO } from './constants';
 import { checkFont } from './font';
+import { PLACEHOLDER_MARKER_LEFT, PLACEHOLDER_MARKER_RIGHT } from './constants';
 
 export const mm2pt = (mm: number): number => {
   return parseFloat(String(mm)) * MM_TO_PT_RATIO;
@@ -100,6 +101,18 @@ export const checkUIProps = (data: unknown) => checkProps(data, UIPropsSchema);
 export const checkPreviewProps = (data: unknown) => checkProps(data, PreviewPropsSchema);
 export const checkDesignerProps = (data: unknown) => checkProps(data, DesignerPropsSchema);
 export const checkGenerateProps = (data: unknown) => checkProps(data, GeneratePropsSchema);
+
+// This could be expanded to consider a version number baked into the template in future?
+export const migrateTemplate = (template: Template) => {
+  template.schemas.forEach((schema) => {
+    Object.keys(schema).forEach((key) => {
+      const entry = schema[key];
+      if (entry.type === 'text' && !entry.hasOwnProperty('content')) {
+        entry.content = `{{${key}}}`;
+      }
+    });
+  });
+};
 
 // GTIN-13, GTIN-8, GTIN-12, GTIN-14
 const validateCheckDigit = (input: string, checkDigitPos: number) => {
@@ -205,4 +218,25 @@ export const validateBarcodeInput = (type: BarCodeType, input: string) => {
   }
 
   return false;
+};
+
+export const buildPlaceholder = (fieldName: string) => {
+  return PLACEHOLDER_MARKER_LEFT + fieldName + PLACEHOLDER_MARKER_RIGHT;
+};
+
+export const substitutePlaceholdersInContent = (
+  fieldName: string,
+  content: string | undefined,
+  input: string
+) => {
+  if (!content) {
+    // Legacy schema with no content field, or content is empty
+    return input;
+  }
+
+  // Ensure we add escape characters for anything that could break the regex
+  const fieldNameForRegex = fieldName.replace(/[/\-\\^$*+?.()|[\]{}]/g, '\\$&');
+  const regex = new RegExp('{{' + fieldNameForRegex + '}}', 'g');
+
+  return content.replace(regex, input);
 };

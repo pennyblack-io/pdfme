@@ -11,6 +11,7 @@ import {
   DEFAULT_FONT_COLOR,
   TextSchema,
   calculateDynamicFontSize,
+  substitutePlaceholdersInContent,
   getFontKitFont,
   getBrowserVerticalFontAdjustments,
 } from '@pdfme/common';
@@ -40,13 +41,16 @@ const TextSchemaUI = (
   const [dynamicFontSize, setDynamicFontSize] = useState<number | undefined>(undefined);
   const [topAdjustment, setTopAdjustment] = useState<number>(0);
   const [bottomAdjustment, setBottomAdjustment] = useState<number>(0);
+  const content = editable
+    ? String(schema.content)
+    : substitutePlaceholdersInContent(schema.key, schema.content, schema.data);
 
   useEffect(() => {
-    if (schema.dynamicFontSize && schema.data) {
+    if (schema.dynamicFontSize && content) {
       calculateDynamicFontSize({
         textSchema: schema,
         font,
-        input: schema.data,
+        input: content,
         startingFontSize: dynamicFontSize,
       }).then(setDynamicFontSize);
     } else {
@@ -61,11 +65,11 @@ const TextSchemaUI = (
     schema.dynamicFontSize?.fit,
     schema.characterSpacing,
     schema.lineHeight,
-    font
+    font,
   ]);
 
   useEffect(() => {
-    getFontKitFont(schema, font).then(fontKitFont => {
+    getFontKitFont(schema, font).then((fontKitFont) => {
       // Depending on vertical alignment, we need to move the top or bottom of the font to keep
       // it within it's defined box and align it with the generated pdf.
       const { topAdj, bottomAdj } = getBrowserVerticalFontAdjustments(
@@ -90,7 +94,7 @@ const TextSchemaUI = (
       }
     }
   }, [
-    schema.data,
+    content,
     schema.width,
     schema.height,
     schema.fontName,
@@ -113,7 +117,8 @@ const TextSchemaUI = (
     height: schema.height * ZOOM,
     width: schema.width * ZOOM,
     resize: 'none',
-    backgroundColor: schema.data && schema.backgroundColor ? schema.backgroundColor : 'rgb(242 244 255 / 75%)',
+    backgroundColor:
+      schema.data && schema.backgroundColor ? schema.backgroundColor : 'rgb(242 244 255 / 75%)',
     border: 'none',
     display: 'flex',
     flexDirection: 'column',
@@ -138,6 +143,9 @@ const TextSchemaUI = (
     textAlign: schema.alignment ?? DEFAULT_ALIGNMENT,
     whiteSpace: 'pre-wrap',
     wordBreak: 'break-word',
+    backgroundColor:
+      content && schema.backgroundColor ? schema.backgroundColor : 'rgb(242 244 255 / 75%)',
+    border: 'none',
   };
 
   return editable ? (
@@ -150,7 +158,7 @@ const TextSchemaUI = (
         style={{ ...textareaStyle, ...fontStyles }}
         onChange={(e) => onChange(e.target.value)}
         onBlur={onStopEditing}
-        value={schema.data}
+        value={content}
       ></textarea>
     </div>
   ) : (
@@ -163,8 +171,8 @@ const TextSchemaUI = (
         }}
       >
         {/*  Set the letterSpacing of the last character to 0. */}
-        {schema.data.split('').map((l: string, i: number) => (
-          <span key={i} style={{ letterSpacing: String(schema.data).length === i + 1 ? 0 : 'inherit' }}>
+        {content.split('').map((l: string, i: number) => (
+          <span key={i} style={{ letterSpacing: String(content).length === i + 1 ? 0 : 'inherit' }}>
             {l}
           </span>
         ))}
