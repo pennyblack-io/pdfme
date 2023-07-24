@@ -325,7 +325,8 @@ const Main = (props: Props, ref: Ref<HTMLDivElement>) => {
             onChangeHoveringSchemaId={onChangeHoveringSchemaId}
             editable={editing && activeElements.map((ae) => ae.id).includes(schema.id)}
             onChange={(value) => {
-              changeSchemas([{ key: 'data', value, schemaId: schema.id }]);
+              const key = schema.type === 'text' ? 'content' : 'data';
+              changeSchemas([{ key: key, value, schemaId: schema.id }]);
             }}
             onStopEditing={() => setEditing(false)}
             outline={hoveringSchemaId === schema.id ? '1px solid #18a0fb' : '1px dashed #4af'}

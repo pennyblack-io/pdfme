@@ -1,5 +1,36 @@
-import { validateBarcodeInput, mm2pt, pt2mm, pt2px } from '../src/helper';
-import { PT_TO_PX_RATIO } from "../src";
+import {
+  validateBarcodeInput,
+  mm2pt,
+  pt2mm,
+  pt2px,
+  buildPlaceholder,
+  migrateTemplate,
+  substitutePlaceholdersInContent,
+} from '../src/helper';
+import {BLANK_PDF, PT_TO_PX_RATIO, Template, TextSchema} from "../src";
+
+const getTemplate = (): Template => ({
+  basePdf: BLANK_PDF,
+  schemas: [
+    {
+      a: {
+        type: 'text',
+        content: buildPlaceholder('a'),
+        fontName: 'SauceHanSansJP',
+        position: { x: 0, y: 0 },
+        width: 100,
+        height: 100,
+      },
+      b: {
+        type: 'text',
+        content: buildPlaceholder('b'),
+        position: { x: 0, y: 0 },
+        width: 100,
+        height: 100,
+      },
+    },
+  ],
+});
 
 describe('validateBarcodeInput test', () => {
   test('qrcode', () => {
@@ -273,5 +304,105 @@ describe('pt2px test', () => {
     expect(pt2px(2.8346)).toEqual(3.7785218);
     expect(pt2px(10)).toEqual(13.33);
     expect(pt2px(5322.98)).toEqual(7095.532339999999);
+  });
+});
+describe('migrateTemplate test', () => {
+  test('it migrates one missing text item within a schema', () => {
+    const input = getTemplate();
+    const aTextSchema = input.schemas[0].a as TextSchema;
+    delete aTextSchema.content;
+    const expected = getTemplate();
+
+    migrateTemplate(input);
+    expect(input).toEqual(expected);
+  });
+
+  test('it migrates all missing text items within a schema', () => {
+    const input = getTemplate();
+    const aTextSchema = input.schemas[0].a as TextSchema;
+    delete aTextSchema.content;
+    const bTextSchema = input.schemas[0].b as TextSchema;
+    delete bTextSchema.content;
+    const expected = getTemplate();
+
+    migrateTemplate(input);
+    expect(input).toEqual(expected);
+  });
+
+  test('it does nothing if schema already has content in text', () => {
+    const input = getTemplate();
+    const expected = getTemplate();
+
+    migrateTemplate(input);
+    expect(input).toEqual(expected);
+  });
+
+  test('it does not impact non-text schema entries', () => {
+    const input = getTemplate();
+    input.schemas[0].c = { type: 'image', height: 10, width: 10, position: { x: 0, y: 0}};
+    input.schemas[0].d = { type: 'qrcode', height: 50, width: 50, position: { x: 1, y: 1}};
+    const expected = JSON.parse(JSON.stringify(input));
+
+    migrateTemplate(input);
+    expect(input).toEqual(expected);
+  });
+
+  test('it migrates across multiple schemas', () => {
+    const input = getTemplate();
+    const aTextSchema = input.schemas[0].a as TextSchema;
+    delete aTextSchema.content;
+    input.schemas[1] = {
+      c: {
+        type: 'text',
+        position: { x: 10, y: 10 },
+        fontName: 'foo',
+        width: 100,
+        height: 20,
+      },
+    };
+
+    const expected = JSON.parse(JSON.stringify(input));
+    const exTextSchemaOne = expected.schemas[0].a as TextSchema;
+    exTextSchemaOne.content = '{{a}}';
+    const exTextSchemaTwo = expected.schemas[1].c as TextSchema;
+    exTextSchemaTwo.content = '{{c}}';
+
+    migrateTemplate(input);
+    expect(input).toEqual(expected);
+  });
+});
+
+describe('buildPlaceholder test', () => {
+  test('it generates a string with placeholders around the key', () => {
+    expect(buildPlaceholder('key')).toEqual('{{key}}');
+    expect(buildPlaceholder(' with spaces ')).toEqual('{{ with spaces }}');
+    expect(buildPlaceholder('-=*&^%$£@!')).toEqual('{{-=*&^%$£@!}}');
+    expect(buildPlaceholder('{}')).toEqual('{{{}}}');
+  });
+});
+
+describe('substitutePlaceholdersInContent test', () => {
+  test('it just returns input if there is no content', () => {
+    expect(substitutePlaceholdersInContent('key', undefined, 'pet name')).toEqual('pet name');
+    expect(substitutePlaceholdersInContent('key', '', 'pet name')).toEqual('pet name');
+  });
+
+  test('it returns content with placeholder substituted for input', () => {
+    expect(substitutePlaceholdersInContent('key', '{{key}}', 'dog')).toEqual('dog');
+    expect(substitutePlaceholdersInContent('key', 'a {{key}} is', 'dog')).toEqual('a dog is');
+    expect(substitutePlaceholdersInContent('key', 'a {{key}} is a {{key}}', 'dog')).toEqual('a dog is a dog');
+  });
+
+  test('it returns content when no placeholder that can be substituted', () => {
+    expect(substitutePlaceholdersInContent('key', 'no placeholder', 'dog')).toEqual(('no placeholder'))
+    expect(substitutePlaceholdersInContent('key', '{{ key}}', 'dog')).toEqual('{{ key}}');
+    expect(substitutePlaceholdersInContent('key', 'a {{key} is great', 'dog')).toEqual('a {{key} is great');
+  });
+
+  test('it performs substitution with edge cases', () => {
+    expect(substitutePlaceholdersInContent('{extra', '{{{extra}}', 'dog')).toEqual('dog');
+    expect(substitutePlaceholdersInContent('extra', '{{{extra}}', 'dog')).toEqual('{dog');
+    expect(substitutePlaceholdersInContent('extra}', '{{extra}}}}', 'dog')).toEqual('dog}');
+    expect(substitutePlaceholdersInContent('-*=()=&-', '{-{{-*=()=&-}}-}', '||')).toEqual('{-||-}');
   });
 });

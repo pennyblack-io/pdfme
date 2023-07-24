@@ -58,6 +58,9 @@ import {
   checkGenerateProps,
   mm2pt,
   pt2px,
+  buildPlaceholder,
+  migrateTemplate,
+  substitutePlaceholdersInContent,
   validateBarcodeInput,
 } from './helper.js';
 import {
@@ -119,6 +122,9 @@ export {
   checkGenerateProps,
   validateBarcodeInput,
   calculateDynamicFontSize,
+  buildPlaceholder,
+  migrateTemplate,
+  substitutePlaceholdersInContent,
 };
 
 export type {
