@@ -2,7 +2,7 @@ import { readFileSync } from 'fs';
 import * as path from 'path';
 import { calculateDynamicFontSize } from "../src/calculateDynamicFontSize"
 import { Font, TextSchema } from '../src/type';
-import { getDefaultFont } from "../src/helper"
+import { getDefaultFont, buildPlaceholder } from "../src/helper"
 
 const sansData = readFileSync(path.join(__dirname, `/assets/fonts/SauceHanSansJP.ttf`));
 const serifData = readFileSync(path.join(__dirname, `/assets/fonts/SauceHanSerifJP.ttf`));
@@ -14,7 +14,7 @@ const getSampleFont = (): Font => ({
 
 const getTextSchema = () => {
   const textSchema: TextSchema = {
-    position: { x: 0, y: 0 }, type: 'text', fontSize: 14, characterSpacing: 1, width: 50, height: 50
+    position: { x: 0, y: 0 }, type: 'text', content: buildPlaceholder('variable'), fontSize: 14, characterSpacing: 1, width: 50, height: 50
   };
   return textSchema
 }

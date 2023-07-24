@@ -52,6 +52,9 @@ import {
   checkPreviewProps,
   checkDesignerProps,
   checkGenerateProps,
+  buildPlaceholder,
+  migrateTemplate,
+  substitutePlaceholdersInContent,
   validateBarcodeInput,
 } from './helper.js';
 import { calculateDynamicFontSize } from './calculateDynamicFontSize.js';
@@ -86,6 +89,9 @@ export {
   checkPreviewProps,
   checkDesignerProps,
   checkGenerateProps,
+  migrateTemplate,
+  buildPlaceholder,
+  substitutePlaceholdersInContent,
   validateBarcodeInput,
   calculateDynamicFontSize,
 };

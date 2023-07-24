@@ -7,7 +7,8 @@ import {
   DEFAULT_FONT_COLOR,
   DEFAULT_PT_TO_PX_RATIO,
   TextSchema,
-  calculateDynamicFontSize
+  calculateDynamicFontSize,
+  substitutePlaceholdersInContent
 } from '@pdfme/common';
 import { SchemaUIProps } from './SchemaUI';
 import { ZOOM } from '../../constants';
@@ -25,13 +26,15 @@ const TextSchemaUI = (
 
   const [dynamicFontSize, setDynamicFontSize] = useState<number | undefined>(undefined);
 
+  const content = editable ? String(schema.content) : substitutePlaceholdersInContent(schema.key, schema.content, schema.data);
+
   useEffect(() => {
-    if (schema.dynamicFontSize && schema.data) {
-      calculateDynamicFontSize({ textSchema: schema, font, input: schema.data }).then(setDynamicFontSize)
+    if (schema.dynamicFontSize && content) {
+      calculateDynamicFontSize({ textSchema: schema, font, input: content }).then(setDynamicFontSize)
     } else {
       setDynamicFontSize(undefined);
     }
-  }, [schema.data, schema.width, schema.fontName, schema.dynamicFontSize, schema.dynamicFontSize?.max, schema.dynamicFontSize?.min, schema.characterSpacing, font]);
+  }, [content, schema.width, schema.fontName, schema.dynamicFontSize, schema.dynamicFontSize?.max, schema.dynamicFontSize?.min, schema.characterSpacing, font]);
 
   const style: React.CSSProperties = {
     position: 'absolute',
@@ -49,7 +52,7 @@ const TextSchemaUI = (
     whiteSpace: 'pre-line',
     wordBreak: 'break-word',
     backgroundColor:
-      schema.data && schema.backgroundColor ? schema.backgroundColor : 'rgb(242 244 255 / 75%)',
+      content && schema.backgroundColor ? schema.backgroundColor : 'rgb(242 244 255 / 75%)',
     border: 'none',
   };
 
@@ -77,8 +80,8 @@ const TextSchemaUI = (
     // Calculate the single line height in px
     const singleLineHeight = ((ascentInPixels + Math.abs(descentInPixels)) / fontSizeInPx);
 
-   // Calculate the top margin/padding in px
-   fontAlignmentValue = ((singleLineHeight * fontSizeInPx) - fontSizeInPx) / 2;
+    // Calculate the top margin/padding in px
+    fontAlignmentValue = ((singleLineHeight * fontSizeInPx) - fontSizeInPx) / 2;
   }
 
   return editable ? (
@@ -93,7 +96,7 @@ const TextSchemaUI = (
         paddingTop: fontAlignmentValue >= 0 ? `${fontAlignmentValue}px` : '0',
       }}
       onChange={(e) => onChange(e.target.value)}
-      value={schema.data}
+      value={content}
     ></textarea>
   ) : (
     <div style={style}>
@@ -102,11 +105,11 @@ const TextSchemaUI = (
          paddingTop: fontAlignmentValue >= 0 ? `${fontAlignmentValue}px` : '0',
        }}>
         {/*  Set the letterSpacing of the last character to 0. */}
-        {schema.data.split('').map((l, i) => (
+        {content.split('').map((l, i) => (
           <span
             key={i}
             style={{
-              letterSpacing: String(schema.data).length === i + 1 ? 0 : 'inherit',
+              letterSpacing: String(content).length === i + 1 ? 0 : 'inherit',
             }}
           >
             {l}
