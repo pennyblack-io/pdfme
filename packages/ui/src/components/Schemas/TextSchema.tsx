@@ -1,31 +1,28 @@
-import React, { useContext, forwardRef, Ref, useState, useEffect } from 'react';
+import React, { useContext, forwardRef, Ref, useState, useEffect, useRef } from 'react';
 import {
-  DEFAULT_FONT_NAME,
   DEFAULT_FONT_SIZE,
   DEFAULT_ALIGNMENT,
   DEFAULT_LINE_HEIGHT,
   DEFAULT_CHARACTER_SPACING,
   DEFAULT_FONT_COLOR,
-  DEFAULT_PT_TO_PX_RATIO,
   TextSchema,
   calculateDynamicFontSize,
-  getDefaultFont,
 } from '@pdfme/common';
+import { getVerticalAlignment } from '../../helper';
 import { SchemaUIProps } from './SchemaUI';
 import { ZOOM } from '../../constants';
 import { FontContext } from '../../contexts';
-import * as fontkit from 'fontkit';
-import { Buffer } from 'buffer/';
 
 type Props = SchemaUIProps & { schema: TextSchema };
 
 const TextSchemaUI = (
   { schema, editable, placeholder, tabIndex, onChange }: Props,
-  ref: Ref<HTMLTextAreaElement>
+  ref: Ref<HTMLTextAreaElement>,
 ) => {
   const font = useContext(FontContext);
-  const fallbackFont = getDefaultFont();
   const [dynamicFontSize, setDynamicFontSize] = useState<number | undefined>(undefined);
+  const [textContentHeight, setTextContentHeight] = useState(0);
+  const textContentRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (schema.dynamicFontSize && schema.data) {
@@ -55,57 +52,67 @@ const TextSchemaUI = (
     border: 'none',
   };
 
-  const schemaFontSize = dynamicFontSize ?? schema.fontSize ?? DEFAULT_FONT_SIZE;
-  let fontAlignmentValue = 0;
-  let schemaFontData = fallbackFont[DEFAULT_FONT_NAME].data;
+  useEffect(() => {
+    if (textContentRef.current) {
+      setTextContentHeight(textContentRef.current.clientHeight);
+    }
 
-  if (schema.fontName) {
-    schemaFontData = font[schema.fontName].data;
-  }
+    if (ref && 'current' in ref) {
+      const textarea = ref.current;
 
-  const currentFont = fontkit.create(
-    // @ts-ignore
-    Buffer.from(schemaFontData as ArrayBuffer)
-  );
-  
-  // Ascent and descent values obtained from Fontkit in font units
-  const ascentInFontUnits = currentFont.ascent;
-  const descentInFontUnits = currentFont.descent;
-  const fontSizeInPx = schemaFontSize * DEFAULT_PT_TO_PX_RATIO;
+      if (textarea) {
+        textarea.style.height = 'auto';
+        textarea.style.height = `${textarea.scrollHeight}px`;
+      }
+    }    
+  }, [schema.verticalAlignment, schema.fontSize, schema.fontName, schema.characterSpacing, editable, schema.data]);
 
-  // Get the scaling factor for the font
-  const scalingFactor = currentFont.unitsPerEm;
+  const handleInput = (e: React.FormEvent<HTMLTextAreaElement>) => {
+    const textarea = e.currentTarget;
+    textarea.style.height = 'auto';
+    textarea.style.height = `${textarea.scrollHeight + (textarea.scrollHeight - textContentHeight)}px`;
+  };
 
-  // Convert ascent and descent to px values
-  const ascentInPixels = (ascentInFontUnits / scalingFactor) * fontSizeInPx;
-  const descentInPixels = (descentInFontUnits / scalingFactor) * fontSizeInPx;
-
-  // Calculate the single line height in px
-  const singleLineHeight = ((ascentInPixels + Math.abs(descentInPixels)) / fontSizeInPx);
-
-  // Calculate the top margin/padding in px
-  fontAlignmentValue = ((singleLineHeight * fontSizeInPx) - fontSizeInPx) / 2;
-  
   return editable ? (
-    <textarea
-      ref={ref}
-      placeholder={placeholder}
-      tabIndex={tabIndex}
-      style={{
-        ...style,
-        height: fontAlignmentValue < 0 ? `${schema.height * ZOOM + Math.abs(fontAlignmentValue)}px` : `${schema.height * ZOOM}px`, 
-        marginTop: fontAlignmentValue < 0 ? `${fontAlignmentValue}px` : '0',
-        paddingTop: fontAlignmentValue >= 0 ? `${fontAlignmentValue}px` : '0',
-      }}
-      onChange={(e) => onChange(e.target.value)}
-      value={schema.data}
-    ></textarea>
+    <div style={{
+      ...style,
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: getVerticalAlignment(schema.verticalAlignment),
+    }}>
+      <textarea
+        ref={ref}
+        placeholder={placeholder}
+        tabIndex={tabIndex}
+        rows={1}
+        style={{
+          ...style,
+          position: 'relative',
+          display: 'block',
+          width: '100%',
+          resize: 'none',
+          overflow: 'hidden',
+          height: 'auto',
+        }}
+        onChange={(e) => onChange(e.target.value)}
+        onInput={handleInput}
+        value={schema.data}
+      ></textarea>
+    </div>
   ) : (
-    <div style={style}>
-      <div style={{ 
-         marginTop: fontAlignmentValue < 0 ? `${fontAlignmentValue}px` : '0',
-         paddingTop: fontAlignmentValue >= 0 ? `${fontAlignmentValue}px` : '0',
-       }}>
+    <div style={{
+      ...style,
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: getVerticalAlignment(schema.verticalAlignment),
+    }}>
+      <div
+        ref={textContentRef}
+        style={{ 
+          height: 'auto',
+          width: schema.width * ZOOM,
+        }}
+       >
         {/*  Set the letterSpacing of the last character to 0. */}
         {schema.data.split('').map((l, i) => (
           <span

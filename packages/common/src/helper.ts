@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { Buffer } from 'buffer';
-import { DEFAULT_FONT_NAME, DEFAULT_FONT_VALUE } from './constants.js';
+import { DEFAULT_FONT_NAME, DEFAULT_FONT_VALUE, DEFAULT_PT_TO_PX_RATIO } from './constants.js';
 import { Template, Schema, BasePdf, Font, CommonProps, isTextSchema, BarCodeType } from './type.js';
 import {
   Inputs as InputsSchema,
@@ -85,6 +85,32 @@ export const heightOfFontAtSize = (font: FontkitFont, size: number) => {
   height -= Math.abs(descent * scale) || 0;
 
   return (height / 1000) * size;
+};
+
+export const calcFontAlignmentValue = (fontkitFont: FontkitFont, size: number) => {
+  // Ascent and descent values obtained from Fontkit in font units
+  const ascentInFontUnits = fontkitFont.ascent;
+  const descentInFontUnits = fontkitFont.descent;
+  const fontSizeInPx = size * DEFAULT_PT_TO_PX_RATIO;
+
+  // Get the scaling factor for the font
+  const scalingFactor = fontkitFont.unitsPerEm;
+
+  // Convert ascent and descent to px values (to match up with browser layout)
+  const ascentInPixels = (ascentInFontUnits / scalingFactor) * fontSizeInPx;
+  const descentInPixels = (descentInFontUnits / scalingFactor) * fontSizeInPx;
+
+  // Calculate the single line height in px (to match up with browser layout)
+  const singleLineHeight = ((ascentInPixels + Math.abs(descentInPixels)) / fontSizeInPx);
+
+  // Calculate the top margin/padding in px (to match up with browser layout)
+  const fontAlignmentValue = (((singleLineHeight * fontSizeInPx) - fontSizeInPx) / 2) / DEFAULT_PT_TO_PX_RATIO;
+
+  return {
+    ascentInPixels,
+    descentInPixels,
+    fontAlignmentValue,
+  };
 };
 
 const uniq = <T>(array: Array<T>) => Array.from(new Set(array));

@@ -11,6 +11,7 @@ import {
 } from '@pdfme/pdf-lib';
 import bwipjs, { ToBufferOptions } from 'bwip-js';
 import {
+  DEFAULT_PT_TO_PX_RATIO,
   getB64BasePdf,
   b64toUint8Array,
   validateBarcodeInput,
@@ -33,7 +34,8 @@ import {
   DEFAULT_FONT_COLOR,
   calculateDynamicFontSize,
   heightOfFontAtSize,
-  getDefaultFont
+  getDefaultFont,
+  calcFontAlignmentValue,
 } from '@pdfme/common';
 import { Buffer } from 'buffer';
 import * as fontkit from 'fontkit';
@@ -306,7 +308,11 @@ const drawInputByTextSchema = async (arg: {
 
   let beforeLineOver = 0;
 
-  input.split(/\r|\n|\r\n/g).forEach((inputLine, inputLineIndex) => {
+  // Modify input split array order for multiline text
+  let inputSplit = input.split(/\r|\n|\r\n/g).reverse();
+  if (templateSchema.verticalAlignment === 'top') inputSplit = input.split(/\r|\n|\r\n/g);
+
+  inputSplit.forEach((inputLine, inputLineIndex) => {
     const isOverEval = (testString: string) => {
       const testStringWidth =
         pdfFontValue.widthOfTextAtSize(testString, size) + (testString.length - 1) * characterSpacing;
@@ -317,15 +323,40 @@ const drawInputByTextSchema = async (arg: {
     const drawLine = (line: string, lineIndex: number) => {
       const textWidth = pdfFontValue.widthOfTextAtSize(line, size) + (line.length - 1) * characterSpacing;
       const textHeight = heightOfFontAtSize(fontkitFont, size);
+      const { descentInPixels, fontAlignmentValue } = calcFontAlignmentValue(fontkitFont, size);
 
+      const calcYAlign = () => {
+        const verticalAlignValue = templateSchema.verticalAlignment;
+        const baseY = calcY(templateSchema.position.y, pageHeight, height);
+        const descentOffset = (Math.abs(descentInPixels) / DEFAULT_PT_TO_PX_RATIO);
+        const lineHeightOffset = 
+          (lineHeight * size * (inputLineIndex + lineIndex + beforeLineOver) - 
+          (lineHeight === 0 ? 0 : ((lineHeight - 1) * size) / 2));
+       
+        const calcYTop = 
+          baseY + height - textHeight + fontAlignmentValue - 
+          lineHeight * size * (inputLineIndex + lineIndex + beforeLineOver) -
+          (lineHeight === 0 ? 0 : ((lineHeight - 1) * size) / 2);
+
+        const calcYMiddle = inputSplit.length === 1 
+          ? baseY + (height / 2) - (textHeight / 2) + (descentOffset / 2) 
+          : baseY + lineHeightOffset + ((height - (textHeight * inputSplit.length)) / 2) + fontAlignmentValue;
+        
+        const calcYBottom = 
+          baseY + descentOffset - fontAlignmentValue + 
+          lineHeight * size * (inputLineIndex + lineIndex + beforeLineOver) + 
+          (lineHeight === 0 ? 0 : ((lineHeight - 1) * size) / 2);
+
+        if (verticalAlignValue === 'top') return calcYTop;
+        if (verticalAlignValue === 'middle') return calcYMiddle;
+        if (verticalAlignValue === 'bottom') return calcYBottom;
+        
+        return calcYTop;
+      };
+     
       page.drawText(line, {
         x: calcX(templateSchema.position.x, alignment, width, textWidth),
-        y:
-          calcY(templateSchema.position.y, pageHeight, height) +
-          height -
-          textHeight -
-          lineHeight * size * (inputLineIndex + lineIndex + beforeLineOver) -
-          (lineHeight === 0 ? 0 : ((lineHeight - 1) * size) / 2),
+        y: calcYAlign(),
         rotate,
         size,
         color,

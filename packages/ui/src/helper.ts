@@ -543,3 +543,23 @@ export const getPagesScrollTopByIndex = (
     .slice(0, index)
     .reduce((acc, cur) => acc + (cur.height * ZOOM + RULER_HEIGHT * scale) * scale, 0);
 };
+
+export const getVerticalAlignment = (verticalAlignmentValue: string | undefined) => {
+  let verticalAlignment;
+
+  switch (verticalAlignmentValue) {
+    case 'top':
+      verticalAlignment = 'flex-start';
+      break;
+    case 'bottom':
+      verticalAlignment = 'flex-end';
+      break;
+    case 'middle':
+      verticalAlignment = 'center';
+      break;
+    default:
+      verticalAlignment = 'flex-start';
+  }
+
+  return verticalAlignment;
+};

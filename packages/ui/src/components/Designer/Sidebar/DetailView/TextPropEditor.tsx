@@ -145,6 +145,7 @@ const TextPropEditor = (
 ) => {
   const { changeSchemas, activeSchema } = props;
   const alignments = ['left', 'center', 'right'];
+  const verticalAlignments = ['top', 'middle', 'bottom'];
   const font = useContext(FontContext);
   const fallbackFontName = getFallbackFontName(font);
 
@@ -165,19 +166,26 @@ const TextPropEditor = (
           value={activeSchema.fontName ?? fallbackFontName}
           options={Object.keys(font)}
           onChange={(e) => {
-            changeSchemas([
-              { key: 'fontName', value: e.target.value, schemaId: activeSchema.id, },
-            ]);
+            changeSchemas([{ key: 'fontName', value: e.target.value, schemaId: activeSchema.id }]);
           }}
         />
 
         <SelectSet
-          label={'Alignment'}
+          label={'Horizontal Align'}
           value={activeSchema.alignment ?? 'left'}
           options={alignments}
-          onChange={(e) =>
-            changeSchemas([{ key: 'alignment', value: e.target.value, schemaId: activeSchema.id }])
-          }
+          onChange={(e) => {
+            changeSchemas([{ key: 'alignment', value: e.target.value, schemaId: activeSchema.id }]);
+          }}
+        />
+
+        <SelectSet
+          label={'Vertical Align'}
+          value={activeSchema.verticalAlignment ?? 'top'}
+          options={verticalAlignments}
+          onChange={(e) => {
+            changeSchemas([{ key: 'verticalAlignment', value: e.target.value, schemaId: activeSchema.id }]);
+          }}
         />
       </div>
       <div
@@ -194,9 +202,7 @@ const TextPropEditor = (
           value={activeSchema.fontSize ?? DEFAULT_FONT_SIZE}
           onChange={(e) => {
             const currentFontSize = Number(e.target.value);
-            changeSchemas([
-              { key: 'fontSize', value: currentFontSize, schemaId: activeSchema.id, },
-            ]);
+            changeSchemas([{ key: 'fontSize', value: currentFontSize, schemaId: activeSchema.id }])
           }}
         />
         <NumberInputSet
@@ -239,8 +245,8 @@ const TextPropEditor = (
             changeSchemas([
               {
                 key: 'dynamicFontSize', value: e.target.checked ? {
-                  min: activeSchema.fontSize || DEFAULT_FONT_SIZE,
-                  max: activeSchema.fontSize || DEFAULT_FONT_SIZE,
+                      min: activeSchema.fontSize || DEFAULT_FONT_SIZE,
+                      max: activeSchema.fontSize || DEFAULT_FONT_SIZE,
                 } : undefined, schemaId: activeSchema.id,
               },
             ]);
@@ -257,7 +263,6 @@ const TextPropEditor = (
               maxNumber={activeSchema.fontSize}
               onChange={(e) => {
                 changeSchemas([{ key: 'dynamicFontSize.min', value: Number(e.target.value), schemaId: activeSchema.id }])
-
               }}
             />
 
