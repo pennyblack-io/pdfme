@@ -341,9 +341,9 @@ const drawInputByTextSchema = async (arg: {
         const calcYMiddle = inputSplit.length === 1 
           ? baseY + (height / 2) - (textHeight / 2) + (descentOffset / 2) 
           : baseY + lineHeightOffset + ((height - (textHeight * inputSplit.length)) / 2) + fontAlignmentValue;
-        
-        const calcYBottom = 
-          baseY + descentOffset - fontAlignmentValue + 
+
+          const calcYBottom = 
+          baseY + descentOffset + 
           lineHeight * size * (inputLineIndex + lineIndex + beforeLineOver) + 
           (lineHeight === 0 ? 0 : ((lineHeight - 1) * size) / 2);
 

@@ -1,17 +1,23 @@
 import React, { useContext, forwardRef, Ref, useState, useEffect, useRef } from 'react';
 import {
+  DEFAULT_FONT_NAME,
   DEFAULT_FONT_SIZE,
   DEFAULT_ALIGNMENT,
   DEFAULT_LINE_HEIGHT,
   DEFAULT_CHARACTER_SPACING,
   DEFAULT_FONT_COLOR,
+  DEFAULT_PT_TO_PX_RATIO,
   TextSchema,
   calculateDynamicFontSize,
+  calcFontAlignmentValue,
+  getDefaultFont,
 } from '@pdfme/common';
 import { getVerticalAlignment } from '../../helper';
 import { SchemaUIProps } from './SchemaUI';
 import { ZOOM } from '../../constants';
 import { FontContext } from '../../contexts';
+import * as fontkit from 'fontkit';
+import { Buffer } from 'buffer/';
 
 type Props = SchemaUIProps & { schema: TextSchema };
 
@@ -20,9 +26,14 @@ const TextSchemaUI = (
   ref: Ref<HTMLTextAreaElement>,
 ) => {
   const font = useContext(FontContext);
+  const fallbackFont = getDefaultFont();
   const [dynamicFontSize, setDynamicFontSize] = useState<number | undefined>(undefined);
-  const [textContentHeight, setTextContentHeight] = useState(0);
-  const textContentRef = React.useRef<HTMLDivElement>(null);
+  const schemaFontSize = dynamicFontSize ?? schema.fontSize ?? DEFAULT_FONT_SIZE;
+  const schemaFontData = schema.fontName ? font[schema.fontName].data : fallbackFont[DEFAULT_FONT_NAME].data;
+  
+  // @ts-ignore
+  const currentFont = fontkit.create(Buffer.from(schemaFontData as ArrayBuffer));
+  const { fontAlignmentValue } = calcFontAlignmentValue(currentFont, schemaFontSize);
 
   useEffect(() => {
     if (schema.dynamicFontSize && schema.data) {
@@ -31,6 +42,17 @@ const TextSchemaUI = (
       setDynamicFontSize(undefined);
     }
   }, [schema.data, schema.width, schema.fontName, schema.dynamicFontSize, schema.dynamicFontSize?.max, schema.dynamicFontSize?.min, schema.characterSpacing, font]);
+
+  useEffect(() => {
+    if (ref && 'current' in ref) {
+      const textarea = ref.current;
+
+      if (textarea) {
+        textarea.style.height = 'auto';
+        textarea.style.height = `${textarea.scrollHeight}px`;
+      }
+    }    
+  }, [schema.verticalAlignment, schema.fontSize, schema.fontName, schema.characterSpacing, editable, schema.data]);
 
   const style: React.CSSProperties = {
     position: 'absolute',
@@ -52,27 +74,6 @@ const TextSchemaUI = (
     border: 'none',
   };
 
-  useEffect(() => {
-    if (textContentRef.current) {
-      setTextContentHeight(textContentRef.current.clientHeight);
-    }
-
-    if (ref && 'current' in ref) {
-      const textarea = ref.current;
-
-      if (textarea) {
-        textarea.style.height = 'auto';
-        textarea.style.height = `${textarea.scrollHeight}px`;
-      }
-    }    
-  }, [schema.verticalAlignment, schema.fontSize, schema.fontName, schema.characterSpacing, editable, schema.data]);
-
-  const handleInput = (e: React.FormEvent<HTMLTextAreaElement>) => {
-    const textarea = e.currentTarget;
-    textarea.style.height = 'auto';
-    textarea.style.height = `${textarea.scrollHeight + (textarea.scrollHeight - textContentHeight)}px`;
-  };
-
   return editable ? (
     <div style={{
       ...style,
@@ -89,13 +90,13 @@ const TextSchemaUI = (
           ...style,
           position: 'relative',
           display: 'block',
-          width: '100%',
-          resize: 'none',
-          overflow: 'hidden',
+          marginTop: schema.verticalAlignment === 'middle' ? `${fontAlignmentValue * DEFAULT_PT_TO_PX_RATIO}px` : 0,
           height: 'auto',
+          width: '100%',
+          overflow: 'hidden',
+          outline: 'none',
         }}
         onChange={(e) => onChange(e.target.value)}
-        onInput={handleInput}
         value={schema.data}
       ></textarea>
     </div>
@@ -107,10 +108,10 @@ const TextSchemaUI = (
       justifyContent: getVerticalAlignment(schema.verticalAlignment),
     }}>
       <div
-        ref={textContentRef}
         style={{ 
           height: 'auto',
           width: schema.width * ZOOM,
+          marginBottom: schema.verticalAlignment === 'bottom' ? `${fontAlignmentValue * DEFAULT_PT_TO_PX_RATIO}px` : 0,
         }}
        >
         {/*  Set the letterSpacing of the last character to 0. */}
