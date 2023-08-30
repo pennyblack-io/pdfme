@@ -140,8 +140,6 @@ const TextSchemaUI = (
     textAlign: schema.alignment ?? DEFAULT_ALIGNMENT,
     whiteSpace: 'pre-wrap',
     wordBreak: 'break-word',
-    backgroundColor:
-      content && schema.backgroundColor ? schema.backgroundColor : 'rgb(242 244 255 / 75%)',
     border: 'none',
   };
 
@@ -151,6 +149,7 @@ const TextSchemaUI = (
         ref={ref}
         placeholder={placeholder}
         tabIndex={tabIndex}
+        rows={1}
         style={{ ...textareaStyle, ...fontStyles }}
         onChange={(e) => onChange(e.target.value)}
         onBlur={onStopEditing}
