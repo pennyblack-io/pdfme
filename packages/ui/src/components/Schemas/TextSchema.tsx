@@ -153,7 +153,6 @@ const TextSchemaUI = (
         rows={1}
         placeholder={placeholder}
         tabIndex={tabIndex}
-        rows={1}
         style={{ ...textareaStyle, ...fontStyles }}
         onChange={(e) => onChange(e.target.value)}
         onBlur={onStopEditing}
