@@ -158,6 +158,13 @@ const TemplateEditor = ({
             x: p.x + 10 > ps.width - width ? ps.width - width : p.x + 10,
             y: p.y + 10 > ps.height - height ? ps.height - height : p.y + 10,
           };
+          if (cs.type === 'text') {
+            // Update the placeholder of the variable name within the content string to match the change
+            const content = cs.content
+              ? cs.content.replace(buildPlaceholder(cs.key), buildPlaceholder(key))
+              : buildPlaceholder(key);
+            return Object.assign(cloneDeep(cs), { id, key, position, content });
+          }
 
           return Object.assign(cloneDeep(cs), { id, key, position });
         });
