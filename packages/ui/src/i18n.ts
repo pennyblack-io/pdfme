@@ -24,6 +24,9 @@ const dictEn = {
     'Cannot commit the change because the number of items has been changed.',
   commitBulkUpdateFieldName: 'Commit Changes',
   bulkUpdateFieldName: 'Bulk update field names',
+  barColor: 'Bar Color',
+  textColor: 'Text Color',
+  bgColor: 'Background Color',
 };
 
 const dictJa: { [key in keyof DictEn]: string } = {
@@ -47,6 +50,9 @@ const dictJa: { [key in keyof DictEn]: string } = {
   errorBulkUpdateFieldName: '項目数が変更されているため変更をコミットできません。',
   commitBulkUpdateFieldName: '変更を反映',
   bulkUpdateFieldName: '項目名を一括変更',
+  barColor: 'バーの色',
+  textColor: 'テキストの色',
+  bgColor: '背景色',
 };
 
 const dictAr: { [key in keyof DictEn]: string } = {
@@ -70,6 +76,9 @@ const dictAr: { [key in keyof DictEn]: string } = {
   errorBulkUpdateFieldName: 'لا يمكن تنفيذ التغيير لأنه تم تغيير عدد العناصر.',
   commitBulkUpdateFieldName: 'تنفيذ التغييرات',
   bulkUpdateFieldName: 'تغيير الأسماء',
+  barColor: 'لون الشريط',
+  textColor: 'لون الخط',
+  bgColor: 'لون الخلفية',
 };
 
 const dictTh: { [key in keyof DictEn]: string } = {
@@ -93,6 +102,9 @@ const dictTh: { [key in keyof DictEn]: string } = {
   errorBulkUpdateFieldName: 'ไม่สามารถยืนยันการแก้ไขได้เนื่องจากจำนวนรายการมีการเปลี่ยนแปลง',
   commitBulkUpdateFieldName: 'ยืนยันการแก้ไข',
   bulkUpdateFieldName: 'แก้ไขชื่อฟิลด์เป็นชุด',
+  barColor: 'สีบาร์',
+  textColor: 'สีข้อความ',
+  bgColor: 'สีพื้นหลัง',
 };
 
 const dictPl: {[key in keyof DictEn]: string} = {
@@ -116,7 +128,10 @@ const dictPl: {[key in keyof DictEn]: string} = {
   errorBulkUpdateFieldName:
     'Nie można wprowadzić zmian ponieważ liczba elementów uległa zmianie.',
   commitBulkUpdateFieldName: 'Zaakceptuj zmiany',
-  bulkUpdateFieldName: 'Masowo aktualizuj klucze pól', 
+  bulkUpdateFieldName: 'Masowo aktualizuj klucze pól',
+  barColor: 'Kolor paska',
+  textColor: 'Kolor tekstu',
+  bgColor: 'Kolor tła',
 }
 
 const i18n = (lang: Lang, key: keyof DictEn) => {
