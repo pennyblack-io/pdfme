@@ -66,7 +66,9 @@ export const Schema = z
     width: z.number(),
     height: z.number(),
     rotate: z.number().optional(),
-    opacity: z.number().optional(),
+    opacity: z.number().optional(), 
+    // PB Hack for legacy dynamic text
+    content: z.string().optional(),
   })
   .passthrough();
 

@@ -75,7 +75,13 @@ const DetailView = (
   const handleWatch = (newSchema: any) => {
     const changes = [];
     for (let key in newSchema) {
-      if (['id', 'data'].includes(key)) continue;
+      // PB Hack for legacy dynamic text - to allow data to be watched.
+      if (newSchema.type == 'text') {
+        if (key === 'id') continue;
+      } else {
+        if (['id', 'data'].includes(key)) continue;
+      }
+        
       if (newSchema[key] !== (activeSchema as any)[key]) {
         let value = newSchema[key];
         // FIXME memo: https://github.com/pdfme/pdfme/pull/367#issuecomment-1857468274

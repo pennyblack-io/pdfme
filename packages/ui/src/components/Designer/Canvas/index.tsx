@@ -379,7 +379,9 @@ const Canvas = (props: Props, ref: Ref<HTMLDivElement>) => {
                 : 'viewer'
             }
             onChange={(value) => {
-              changeSchemas([{ key: 'data', value, schemaId: schema.id }]);
+              // PB Hack for legacy dynamic text
+              const key = schema.type === 'text' ? 'content' : 'data';
+              changeSchemas([{ key: key, value, schemaId: schema.id }]);
             }}
             stopEditing={() => setEditing(false)}
             outline={`1px ${hoveringSchemaId === schema.id ? 'solid' : 'dashed'} ${

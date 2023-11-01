@@ -1,5 +1,6 @@
 import { RefObject, useRef, useState, useCallback, useEffect } from 'react';
 import { ZOOM, Template, Size, getB64BasePdf, SchemaForUI, ChangeSchemas } from '@pdfme/common';
+import { buildPlaceholder } from '@pdfme/schemas';
 
 import {
   fmtTemplate,
@@ -206,6 +207,14 @@ export const useInitEvents = ({
             x: p.x + 10 > ps.width - width ? ps.width - width : p.x + 10,
             y: p.y + 10 > ps.height - height ? ps.height - height : p.y + 10,
           };
+          // PB Dynamic Text Hack:
+          // Update the placeholder of the variable name within the content string to match the change
+          if (cs.type === 'text') {
+            const content = cs.content
+                ? cs.content.replace(buildPlaceholder(cs.key), buildPlaceholder(key))
+                : buildPlaceholder(key);
+            return Object.assign(cloneDeep(cs), { id, key, position, content });
+          }
 
           return Object.assign(cloneDeep(cs), { id, key, position });
         });
