@@ -124,6 +124,9 @@ export const propPanel: PropPanel<TextSchema> = {
       },
       fontColor: { title: 'Font Color', type: 'string', widget: 'color' },
       backgroundColor: { title: 'Background', type: 'string', widget: 'color' },
+      // PB Hack for legacy dynamic text
+      '----': { type: 'void', widget: 'Divider', cellSpan: 2 },
+      data: { title: 'Example content', type: 'string', widget: 'textArea', span: 24 },
     };
 
     return textSchema;
