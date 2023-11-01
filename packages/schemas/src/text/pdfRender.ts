@@ -27,6 +27,7 @@ import {
   getSplittedLines,
   widthOfTextAtSize,
 } from './helper.js';
+import { substitutePlaceholdersInContent } from './dynamicTextHack.js';
 import { convertForPdfLayoutProps, rotatePoint } from '../renderUtils.js';
 
 const hex2rgb = (hex: string) => {
@@ -117,9 +118,11 @@ const getFontProp = async ({
 };
 
 export const pdfRender = async (arg: PDFRenderProps<TextSchema>) => {
-  const { value, pdfDoc, pdfLib, page, options, schema, _cache } = arg;
+  const { key, value: input, pdfDoc, pdfLib, page, options, schema, _cache } = arg;
 
   const { font = getDefaultFont() } = options;
+
+  const value = substitutePlaceholdersInContent(key, schema.content, input);
 
   const [pdfFontObj, fontKitFont, fontProp] = await Promise.all([
     embedAndGetFontObj({ pdfDoc, font, _cache }),
