@@ -17,6 +17,7 @@ import {
   getFontKitFont,
   getBrowserVerticalFontAdjustments,
 } from './helper';
+import { buildPlaceholder, substitutePlaceholdersInContent } from './dynamicTextHack';
 
 const mapVerticalAlignToFlex = (verticalAlignmentValue: string | undefined) => {
   switch (verticalAlignmentValue) {
@@ -45,18 +46,15 @@ const getBackgroundColor = (
 };
 
 export const uiRender = async (arg: UIRenderProps<TextSchema>) => {
-  const {
-    value,
-    schema,
-    rootElement,
-    mode,
-    onChange,
-    stopEditing,
-    tabIndex,
-    placeholder,
-    options,
-  } = arg;
+  const { schema, rootElement, mode, onChange, stopEditing, tabIndex, placeholder, options } = arg;
   const font = options?.font || getDefaultFont();
+
+  // PB Hack for legacy dynamic text
+  let value = schema.content || buildPlaceholder(schema.key as string);
+
+  if (mode !== 'form' && mode !== 'designer') {
+    value = substitutePlaceholdersInContent(schema.key as string, value, schema.data as string);
+  }
 
   let dynamicFontSize: undefined | number = undefined;
   if (schema.dynamicFontSize && value) {

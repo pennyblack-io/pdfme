@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect, useContext, useCallback } from 'react';
 import { ZOOM, Template, Schema, SchemaForUI, ChangeSchemas, DesignerProps, Size, Plugin } from '@pdfme/common';
+import { buildPlaceholder } from '@pdfme/schemas';
 import Sidebar from './Sidebar/index';
 import Canvas from './Canvas/index';
 import { RULER_HEIGHT, SIDEBAR_WIDTH } from '../../constants';
@@ -95,6 +96,19 @@ const TemplateEditor = ({
     (objs) => {
       const newSchemas = objs.reduce((acc, { key, value, schemaId }) => {
         const tgt = acc.find((s) => s.id === schemaId)! as SchemaForUI;
+
+        // PB Hack for legacy dynamic text
+        if (key === 'key' && tgt.type === 'text') {
+          // Update the placeholder of the variable name within the content string to match the change
+          set(
+            tgt,
+            'content',
+            tgt.content
+              ? tgt.content.replace(buildPlaceholder(tgt.key), buildPlaceholder(String(value)))
+              : buildPlaceholder(String(value))
+          );
+        }
+
         // Assign to reference
         set(tgt, key, value);
 
@@ -106,9 +120,16 @@ const TemplateEditor = ({
             }
           });
           const propPanel = Object.values(pluginsRegistry).find(
-            (plugin) => plugin?.propPanel.defaultSchema.type === value
+              (plugin) => plugin?.propPanel.defaultSchema.type === value
           )?.propPanel;
-          set(tgt, 'data', propPanel?.defaultValue || '');
+
+          // PB Hack for legacy dynamic text - to ensure we set the placeholder when changing the type
+          if (tgt.type === 'text') {
+            set(tgt, 'content', buildPlaceholder(tgt.key));
+            set(tgt, 'data', 'sample text');
+          } else {
+            set(tgt, 'data', propPanel?.defaultValue || '');
+          }
           Object.assign(tgt, propPanel?.defaultSchema || {});
         }
 
@@ -224,6 +245,12 @@ Check this document: https://pdfme.com/docs/custom-schemas`);
       data: propPanel.defaultValue || '',
       ...propPanel.defaultSchema,
     } as SchemaForUI;
+
+    // PB Hack for legacy dynamic text
+    if (s.type === 'text') {
+      s.content = 'before ' + buildPlaceholder(s.key) + ' after';
+      s.data = 'sample text';
+    }
 
     const paper = paperRefs.current[pageCursor];
     const rectTop = paper ? paper.getBoundingClientRect().top : 0;

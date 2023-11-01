@@ -51,7 +51,12 @@ const DetailView = (
   const handleWatch = (newSchema: any) => {
     const changes = [];
     for (const key in newSchema) {
-      if (['id', 'data'].includes(key)) continue;
+      // PB Hack for legacy dynamic text - to allow data to be watched.
+      if (newSchema.type == 'text') {
+        if (key === 'id') continue;
+      } else {
+        if (['id', 'data'].includes(key)) continue;
+      }
       if (newSchema[key] !== (activeSchema as any)[key]) {
         changes.push({ key, value: newSchema[key], schemaId: activeSchema.id });
       }
