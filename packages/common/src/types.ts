@@ -19,6 +19,8 @@ export type ChangeSchemas = (objs: { key: string; value: any; schemaId: string }
  * @property {Map<string, any>} _cache Cache shared only during the execution of the generate function (useful for caching images, etc. if needed).
  */
 export interface PDFRenderProps<T extends Schema> {
+  // PB Hack for dynamic legacy text
+  key: string;
   value: string;
   schema: T;
   pdfLib: typeof import('@pdfme/pdf-lib');
