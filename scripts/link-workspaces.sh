@@ -8,7 +8,7 @@ done
 
 for dir in generator ui; do
     cd "$dir"
-    npm link @pdfme/common
-    npm link @pdfme/schemas
+    npm link @pennyblack-io/pdfme-common
+    npm link @pennyblack-io/pdfme-schemas
     cd ..
 done

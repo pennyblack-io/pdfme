@@ -15,7 +15,12 @@ const config = {
   optimization: { minimize: isProduction },
   resolve: {
     extensions: ['.ts', '.tsx', '.js'],
-    alias: { process: 'process/browser' },
+    alias: {
+      process: 'process/browser',
+      // Map pennyblack packages to pdfme versions
+      "@pdfme/common": path.resolve(__dirname, '../common/'),
+      "@pdfme/schemas": path.resolve(__dirname, '../schemas/'),
+    },
   },
   plugins: [
     // new BundleAnalyzerPlugin(),
