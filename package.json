@@ -16,7 +16,10 @@
   "homepage": "https://pdfme.com",
   "repository": {
     "type": "git",
-    "url": "git@github.com:pdfme/pdfme.git"
+    "url": "git@github.com/pennyblack-io/pdfme.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
   },
   "bugs": {
     "url": "https://github.com/pdfme/pdfme/issues"

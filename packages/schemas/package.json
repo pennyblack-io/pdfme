@@ -1,6 +1,6 @@
 {
-  "name": "@pdfme/schemas",
-  "version": "3.0.0-beta.2",
+  "name": "@pennyblack-io/pdfme-schemas",
+  "version": "1.0.0",
   "sideEffects": false,
   "author": "hand-dot",
   "license": "MIT",
@@ -16,7 +16,7 @@
   "homepage": "https://pdfme.com",
   "repository": {
     "type": "git",
-    "url": "git@github.com:pdfme/pdfme.git"
+    "url": "git@github.com:pennyblack-io/pdfme.git"
   },
   "bugs": {
     "url": "https://github.com/pdfme/pdfme/issues"
