@@ -6,10 +6,11 @@ import { PluginsRegistry, OptionsContext, I18nContext } from '../contexts';
 
 type RendererProps = Omit<
   UIRenderProps<Schema>,
-  'value' | 'schema' | 'onChange' | 'rootElement' | 'options' | 'theme' | 'i18n' | '_cache'
+  'value' | 'schema' | 'onChange' | 'onCustomAttributeChange' | 'rootElement' | 'options' | 'theme' | 'i18n' | '_cache'
 > & {
   schema: SchemaForUI;
   onChange: (value: string) => void;
+  onCustomAttributeChange?: (key: string, value: string) => void;
   outline: string;
   onChangeHoveringSchemaId?: (id: string | null) => void;
   scale: number;
@@ -54,6 +55,13 @@ const Renderer = (props: RendererProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const _cache = useRef<Map<any, any>>(new Map());
 
+  const flatSchemaWithoutData = JSON.stringify(schema, (key, value) => {
+    // Ignoring the keys which contain the actual data allows onChange to be called in
+    // mid-edit without re-rendering the schema. Changes that only amend these values
+    // should only come from inside the schema UI renderer function
+    return key === 'data' || key == 'content' ? undefined : value;
+  });
+
   useEffect(() => {
     if (ref.current && schema.type) {
       const render = Object.values(pluginsRegistry).find(
@@ -77,6 +85,7 @@ Check this document: https://pdfme.com/docs/custom-schemas`);
         rootElement: ref.current,
         mode,
         onChange: editable ? onChange : undefined,
+        onCustomAttributeChange: editable ? onChange : undefined,
         stopEditing: editable ? stopEditing : undefined,
         tabIndex,
         placeholder,
@@ -91,7 +100,7 @@ Check this document: https://pdfme.com/docs/custom-schemas`);
         ref.current.innerHTML = '';
       }
     };
-  }, [JSON.stringify(schema), JSON.stringify(options), mode, scale]);
+  }, [mode, scale, flatSchemaWithoutData, JSON.stringify(options)]);
 
   return (
     <Wrapper {...props}>
