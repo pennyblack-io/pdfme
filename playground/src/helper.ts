@@ -1,7 +1,7 @@
 import { Template, Font, checkTemplate } from '@pdfme/common';
 import { Form, Viewer, Designer } from '@pdfme/ui';
 import { generate } from '@pdfme/generator';
-import { text, barcodes, image, line, rectangle, ellipse } from '@pdfme/schemas';
+import { advancedText, text, barcodes, image, line, rectangle, ellipse } from '@pdfme/schemas';
 import plugins from './plugins';
 
 const fontObjList = [
@@ -96,6 +96,7 @@ ${e}`);
 
 export const getPlugins = () => {
   return {
+    'Advanced Text': advancedText,
     Text: text,
     Line: line,
     Rectangle: rectangle,
