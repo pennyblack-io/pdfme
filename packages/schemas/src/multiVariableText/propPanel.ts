@@ -14,8 +14,8 @@ const mapDynamicVariables = (props: PropPanelWidgetProps) => {
 
   if (variablesChanged) {
     changeSchemas([
-        { key: 'content', value: JSON.stringify(variables), schemaId: activeSchema.id },
-        { key: 'variables', value: varNames, schemaId: activeSchema.id }
+      { key: 'content', value: JSON.stringify(variables), schemaId: activeSchema.id },
+      { key: 'variables', value: varNames, schemaId: activeSchema.id }
     ]);
   }
 
