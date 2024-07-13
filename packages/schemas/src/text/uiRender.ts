@@ -1,5 +1,5 @@
 import type * as CSS from 'csstype';
-import { UIRenderProps, Schema, getDefaultFont } from '@pdfme/common';
+import { UIRenderProps, getDefaultFont } from '@pdfme/common';
 import type { TextSchema } from './types';
 import {
   DEFAULT_FONT_SIZE,
@@ -33,7 +33,7 @@ const mapVerticalAlignToFlex = (verticalAlignmentValue: string | undefined) => {
   return 'flex-start';
 };
 
-const getBackgroundColor = (value: string, schema: Schema) => {
+const getBackgroundColor = (value: string, schema: TextSchema) => {
   if (!value || !schema.backgroundColor) return 'transparent';
   return schema.backgroundColor as string;
 };
@@ -192,10 +192,12 @@ export const uiRender = async (arg: UIRenderProps<TextSchema>) => {
         // Set the focus to the end of the editable element when you focus, as we would for a textarea
         const selection = window.getSelection();
         const range = document.createRange();
-        range.selectNodeContents(textBlock);
-        range.collapse(false); // Collapse range to the end
-        selection?.removeAllRanges();
-        selection?.addRange(range);
+        if (selection && range) {
+          range.selectNodeContents(textBlock);
+          range.collapse(false); // Collapse range to the end
+          selection?.removeAllRanges();
+          selection?.addRange(range);
+        }
       });
     }
   } else {

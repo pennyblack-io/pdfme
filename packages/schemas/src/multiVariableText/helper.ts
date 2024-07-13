@@ -8,6 +8,7 @@ export const substituteVariables = (text: string, variablesStr: string): string 
   const variables: Record<string, string> = JSON.parse(variablesStr) || {}
 
   Object.keys(variables).forEach((variableName) => {
+    // TODO: Not sure about this regex...
     const variableForRegex = variableName.replace(/[/\-\\^$*+?.()|[\]{}]/g, '\\$&');
     const regex = new RegExp('{' + variableForRegex + '}', 'g');
 
