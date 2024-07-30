@@ -27,6 +27,7 @@ import {
   widthOfTextAtSize,
   splitTextToSize,
 } from './helper.js';
+import { substitutePlaceholdersInContent } from './dynamicTextHack.js';
 import { convertForPdfLayoutProps, rotatePoint, hex2PrintingColor } from '../utils.js';
 
 const embedAndGetFontObj = async (arg: {
@@ -89,8 +90,11 @@ const getFontProp = async ({
 };
 
 export const pdfRender = async (arg: PDFRenderProps<TextSchema>) => {
-  const { value, pdfDoc, pdfLib, page, options, schema, _cache } = arg;
-  if (!value) return;
+  const { key, value: input, pdfDoc, pdfLib, page, options, schema, _cache } = arg;
+  if (!input) return;
+
+  // If legacy 'text' then we'll substitute placeholders in the content, otherwise continue as normal
+  const value = schema.type == 'text' && schema.content ? substitutePlaceholdersInContent(key, schema.content, input) : input;
 
   const { font = getDefaultFont(), colorType } = options;
 
