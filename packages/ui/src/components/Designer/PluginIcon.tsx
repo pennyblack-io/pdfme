@@ -1,6 +1,8 @@
 import React, { useContext } from 'react';
 import { Plugin } from "@pdfme/common";
 import { OptionsContext } from '../../contexts';
+import { theme } from 'antd';
+
 
 interface PluginIconProps {
   plugin: Plugin<any>;
@@ -30,18 +32,19 @@ const getWithModifiedSize = (htmlString: string, label: string, size: number, st
 
 const PluginIcon = (props: PluginIconProps) => {
   const { plugin, label, size, styles } = props;
+  const { token } = theme.useToken();
   const options = useContext(OptionsContext);
   const icon = options.icons?.[plugin.propPanel.defaultSchema.type] ?? plugin.icon;
-  const iconStyles = { ...styles, display: 'flex', justifyContent: 'center' };
+  const iconStyles = { ...styles, color: token.colorText, display: 'flex', justifyContent: 'center' };
 
   if (icon) {
     if (size) {
       return getWithModifiedSize(icon, label, size, iconStyles);
     }
-    return <div style={iconStyles} title={label}  dangerouslySetInnerHTML={{__html: icon}} />
+    return <div style={iconStyles} title={label} dangerouslySetInnerHTML={{ __html: icon }} />
   }
 
-  return <div style={{...styles, overflow: 'hidden', fontSize: 10, }}>{label}</div>
+  return <div style={{ ...styles, overflow: 'hidden', fontSize: 10, }} title={label} >{label}</div>
 };
 
 export default PluginIcon;
