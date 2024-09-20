@@ -117,6 +117,6 @@ describe('validateVariables', () => {
     };
     const key = 'testKey';
     const value = '';
-    expect(validateVariables(key, value, readOnlyText)).toBe(false);
+    expect(validateVariables(value, readOnlyText)).toBe(false);
   });
 });

@@ -90,11 +90,11 @@ const getFontProp = async ({
 };
 
 export const pdfRender = async (arg: PDFRenderProps<TextSchema>) => {
-  const { key, value: input, pdfDoc, pdfLib, page, options, schema, _cache } = arg;
+  const { value: input, pdfDoc, pdfLib, page, options, schema, _cache } = arg;
   if (!input) return;
 
   // If legacy 'text' then we'll substitute placeholders in the content, otherwise continue as normal
-  const value = schema.type == 'text' && schema.content ? substitutePlaceholdersInContent(key, schema.content, input) : input;
+  const value = schema.type == 'text' && schema.content ? substitutePlaceholdersInContent(schema.name, schema.content, input) : input;
 
   const { font = getDefaultFont(), colorType } = options;
 
